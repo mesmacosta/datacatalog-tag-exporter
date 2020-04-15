@@ -119,7 +119,7 @@ datacatalog-tag-exporter tags export --project-ids my-project --dir-path DIR_PAT
 [1]: https://circleci.com/gh/mesmacosta/datacatalog-tag-exporter.svg?style=svg
 [2]: https://circleci.com/gh/mesmacosta/datacatalog-tag-exporter
 [3]: https://virtualenv.pypa.io/en/latest/
-[4]: https://img.shields.io/pypi/v/datacatalog-tag-exporter.svg
+[4]: https://img.shields.io/pypi/v/datacatalog-tag-exporter.svg?force_cache=true
 [5]: https://pypi.org/project/datacatalog-tag-exporter/
 [6]: https://img.shields.io/github/license/mesmacosta/datacatalog-tag-exporter.svg
 [7]: https://img.shields.io/github/issues/mesmacosta/datacatalog-tag-exporter.svg
