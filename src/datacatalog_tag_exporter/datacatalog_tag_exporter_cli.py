@@ -37,7 +37,6 @@ class DatacatalogTagExporterCLI:
 
         cls.add_export_tags_cmd(tags_subparsers)
 
-
     @classmethod
     def add_export_tags_cmd(cls, subparsers):
         export_tags_parser = subparsers.add_parser('export',
