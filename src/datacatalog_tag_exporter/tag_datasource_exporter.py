@@ -14,11 +14,12 @@ class TagDatasourceExporter:
     def __init__(self):
         self.__datacatalog_facade = datacatalog_facade.DataCatalogFacade()
 
-    def export_tags(self, project_ids, dir_path=None):
+    def export_tags(self, project_ids, dir_path=None, tag_templates_names=None):
         """
         Export Tags found by searching Data Catalog.
 
         :param dir_path: Directory path to be exported to.
+        :param tag_templates_names: Tag Templates names to narrow down search results.
         :param project_ids: Project ids to narrow down search results.
         """
         logging.info('')
@@ -26,13 +27,16 @@ class TagDatasourceExporter:
 
         logging.info('')
         logging.info('Exporting the Tags...')
-        self.__export_tags(project_ids, dir_path)
+        self.__export_tags(project_ids, dir_path, tag_templates_names)
 
         logging.info('')
         logging.info('==== Export Tags [FINISHED] =============')
 
-    def __export_tags(self, project_ids, dir_path=None):
+    def __export_tags(self, project_ids, dir_path=None, tag_templates_names=None):
         search_results = self.__datacatalog_facade.search_tag_templates(project_ids)
+
+        if tag_templates_names is not None:
+            tag_templates_names = tag_templates_names.split(',')
 
         if dir_path is None:
             dir_path = os.path.dirname(os.path.abspath(__file__))
@@ -43,55 +47,59 @@ class TagDatasourceExporter:
             template_dataframe = None
             tag_template_name = search_result.relative_resource_name
 
-            project_id, location_id, tag_template_id = \
-                self.__datacatalog_facade.extract_resources_from_template(tag_template_name)
+            if tag_templates_names is None or tag_template_name in tag_templates_names:
+                project_id, location_id, tag_template_id = \
+                    self.__datacatalog_facade.extract_resources_from_template(tag_template_name)
 
-            logging.info('')
-            logging.info('Looking for Tags from Template: {}...'.format(tag_template_id))
+                logging.info('')
+                logging.info('Looking for Tags from Template: {}...'.format(tag_template_id))
 
-            tagged_assets = self.__datacatalog_facade.search_tagged_assets(
-                project_id, tag_template_id)
+                tagged_assets = self.__datacatalog_facade.search_tagged_assets(
+                    project_id, tag_template_id)
 
-            entry_name = ''
-            for tagged_asset in tagged_assets:
-                try:
-                    entry_name = tagged_asset.relative_resource_name
+                entry_name = ''
+                for tagged_asset in tagged_assets:
+                    try:
+                        entry_name = tagged_asset.relative_resource_name
 
-                    logging.info('Loading Tags from Entry: {}...'.format(entry_name))
+                        logging.info('Loading Tags from Entry: {}...'.format(entry_name))
 
-                    linked_resource = tagged_asset.linked_resource
-                    relative_resource_name = tagged_asset.relative_resource_name
+                        linked_resource = tagged_asset.linked_resource
+                        relative_resource_name = tagged_asset.relative_resource_name
 
-                    tags = self.__datacatalog_facade.list_tags(entry_name)
-                    asset_dataframe = self.__tags_to_dataframe(linked_resource,
-                                                               relative_resource_name,
-                                                               tag_template_name, tags)
+                        tags = self.__datacatalog_facade.list_tags(entry_name)
+                        asset_dataframe = self.__tags_to_dataframe(linked_resource,
+                                                                   relative_resource_name,
+                                                                   tag_template_name, tags)
 
-                    if template_dataframe is not None:
-                        template_dataframe = template_dataframe.append(asset_dataframe)
+                        if template_dataframe is not None:
+                            template_dataframe = template_dataframe.append(asset_dataframe)
+                        else:
+                            template_dataframe = asset_dataframe
+                    except exceptions.PermissionDenied:
+                        logging.warning(
+                            'Permission denied when processing up Entry %s.'
+                            ' The resource will be skipped.', entry_name)
+
+                if template_dataframe is not None:
+                    file_path = os.path.join(dir_path, '{}.csv'.format(tag_template_id))
+                    template_dataframe.to_csv(file_path)
+                    logging.info('==> Tags from Template: {} exported.'.format(tag_template_id))
+
+                    if summary_dataframe is not None:
+                        summary_dataframe = summary_dataframe.append(template_dataframe)
                     else:
-                        template_dataframe = asset_dataframe
-                except exceptions.PermissionDenied:
-                    logging.warning(
-                        'Permission denied when processing up Entry %s.'
-                        ' The resource will be skipped.', entry_name)
-
-            if template_dataframe is not None:
-                file_path = os.path.join(dir_path, '{}.csv'.format(tag_template_id))
-                template_dataframe.to_csv(file_path)
-                logging.info('==> Tags from Template: {} exported.'.format(tag_template_id))
-
-                if summary_dataframe is not None:
-                    summary_dataframe = summary_dataframe.append(template_dataframe)
+                        summary_dataframe = template_dataframe
                 else:
-                    summary_dataframe = template_dataframe
+                    template_dataframe = self.__create_empty_dataframe(tag_template_name)
+                    logging.info('No Tags found for Template: {}.'.format(tag_template_id))
+                    if summary_dataframe is not None:
+                        summary_dataframe = summary_dataframe.append(template_dataframe)
+                    else:
+                        summary_dataframe = template_dataframe
             else:
-                template_dataframe = self.__create_empty_dataframe(tag_template_name)
-                logging.info('No Tags found for Template: {}.'.format(tag_template_id))
-                if summary_dataframe is not None:
-                    summary_dataframe = summary_dataframe.append(template_dataframe)
-                else:
-                    summary_dataframe = template_dataframe
+                logging.info('Template: {} not in filter list: {}'.format(
+                    tag_template_name, tag_templates_names))
 
         if summary_dataframe is not None:
             summary_dataframe.set_index(constant.TAGS_DS_TEMPLATE_NAME_COLUMN_LABEL, inplace=True)

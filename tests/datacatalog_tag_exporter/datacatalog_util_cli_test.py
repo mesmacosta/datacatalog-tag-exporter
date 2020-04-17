@@ -30,7 +30,7 @@ class TagManagerCLITest(unittest.TestCase):
         tag_datasource_processor = mock_tag_datasource_exporter.return_value
         tag_datasource_processor.export_tags.assert_called_once()
         tag_datasource_processor.export_tags.assert_called_with(
-            project_ids='my-project1,my-project2', dir_path='test.csv')
+            project_ids='my-project1,my-project2', dir_path='test.csv', tag_templates_names=None)
 
     @mock.patch('datacatalog_tag_exporter.datacatalog_tag_exporter_cli.DatacatalogTagExporterCLI')
     def test_main_should_call_cli_run(self, mock_cli):
