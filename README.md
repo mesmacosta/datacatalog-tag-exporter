@@ -116,6 +116,18 @@ The columns for each template file are described as follows:
 datacatalog-tag-exporter tags export --project-ids my-project --dir-path DIR_PATH
 ```
 
+### 2.2.1 Run the datacatalog-tag-exporter filtering Tag Templates
+
+- Python + virtualenv
+
+```bash
+datacatalog-tag-exporter tags export --project-ids my-project \
+--dir-path DIR_PATH \
+--tag-templates-names projects/my-project/locations/us-central1/tagTemplates/my-template,\
+projects/my-project/locations/us-central1/tagTemplates/my-template-2 
+
+```
+
 [1]: https://circleci.com/gh/mesmacosta/datacatalog-tag-exporter.svg?style=svg
 [2]: https://circleci.com/gh/mesmacosta/datacatalog-tag-exporter
 [3]: https://virtualenv.pypa.io/en/latest/
