@@ -14,25 +14,30 @@ class TagDatasourceExporter:
     def __init__(self):
         self.__datacatalog_facade = datacatalog_facade.DataCatalogFacade()
 
-    def export_tags(self, project_ids, dir_path=None, tag_templates_names=None):
+    def export_tags(self, project_ids, dir_path=None, tag_templates_names=None, date_created=None):
         """
         Export Tags found by searching Data Catalog.
 
         :param dir_path: Directory path to be exported to.
         :param tag_templates_names: Tag Templates names to narrow down search results.
         :param project_ids: Project ids to narrow down search results.
+        :param date_created: Tags Creation Date.
         """
         logging.info('')
         logging.info('===> Export Tags [STARTED]')
 
         logging.info('')
         logging.info('Exporting the Tags...')
-        self.__export_tags(project_ids, dir_path, tag_templates_names)
+        self.__export_tags(project_ids, dir_path, tag_templates_names, date_created)
 
         logging.info('')
         logging.info('==== Export Tags [FINISHED] =============')
 
-    def __export_tags(self, project_ids, dir_path=None, tag_templates_names=None):
+    def __export_tags(self,
+                      project_ids,
+                      dir_path=None,
+                      tag_templates_names=None,
+                      date_created=None):
         search_results = self.__datacatalog_facade.search_tag_templates(project_ids)
 
         if tag_templates_names is not None:
@@ -55,7 +60,7 @@ class TagDatasourceExporter:
                 logging.info('Looking for Tags from Template: {}...'.format(tag_template_id))
 
                 tagged_assets = self.__datacatalog_facade.search_tagged_assets(
-                    project_id, tag_template_id)
+                    project_id, tag_template_id, date_created)
 
                 entry_name = ''
                 for tagged_asset in tagged_assets:

@@ -55,6 +55,10 @@ class DatacatalogTagExporterCLI:
                                         'i.e: '
                                         'projects/my-project/locations/us-central1/tagTemplates/'
                                         'my_template_test')
+        export_tags_parser.add_argument('--date-created',
+                                        help='Look for Tags created after the date, '
+                                        'format:YYYY-MM-DDThh:mm:ss.'
+                                        ' All timestamps must be in GMT')
         export_tags_parser.set_defaults(func=cls.__export_tags)
 
     @classmethod
@@ -62,7 +66,8 @@ class DatacatalogTagExporterCLI:
         tag_datasource_exporter.TagDatasourceExporter().export_tags(
             project_ids=args.project_ids,
             dir_path=args.dir_path,
-            tag_templates_names=args.tag_templates_names)
+            tag_templates_names=args.tag_templates_names,
+            date_created=args.date_created)
 
 
 def main():

@@ -67,6 +67,29 @@ class DataCatalogFacadeTest(unittest.TestCase):
         self.assertEqual(1, datacatalog.search_catalog.call_count)
         self.assertEqual(expected_return_value, return_value)
 
+    def test_search_tagged_assets_with_date_created_should_return_values(self):
+        result_iterator = MockedObject()
+
+        entry = MockedObject()
+        entry.name = 'asset_1'
+
+        entry_2 = MockedObject()
+        entry_2.name = 'asset_2'
+
+        expected_return_value = [entry, entry_2]
+
+        # simulates two pages
+        result_iterator.pages = [[entry], [entry_2]]
+
+        datacatalog = self.__datacatalog_client
+        datacatalog.search_catalog.return_value = result_iterator
+
+        return_value = self.__datacatalog_facade.search_tagged_assets(
+            'my-project1', 'template1', '2020-01-01')
+
+        self.assertEqual(1, datacatalog.search_catalog.call_count)
+        self.assertEqual(expected_return_value, return_value)
+
     def test_extract_resources_from_template_should_return_values(self):
         resource_name = 'projects/my-project/locations/us-central1/tagTemplates/my-template'
 

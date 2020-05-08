@@ -40,12 +40,15 @@ class DataCatalogFacade:
 
     # Currently we don't have a list method, so we are using search which is not exhaustive,
     # and might not return some entries.
-    def search_tagged_assets(self, project_id, tag_template_id):
+    def search_tagged_assets(self, project_id, tag_template_id, date_created=None):
         scope = datacatalog_v1beta1.types.SearchCatalogRequest.Scope()
 
         scope.include_project_ids.extend([project_id])
 
         query = 'tag:{}.{}'.format(project_id, tag_template_id)
+
+        if date_created:
+            query = '{} createtime>{}'.format(query, date_created)
 
         results_iterator = self.__datacatalog.search_catalog(scope=scope,
                                                              query=query,
