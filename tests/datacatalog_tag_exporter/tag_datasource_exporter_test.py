@@ -279,7 +279,7 @@ class TagDatasourceExporterTest(unittest.TestCase):
         self.assertEqual(1, first_row[constant.TAGS_DS_SUMMARY_COLUMNS_ORDER[8]])
 
     def test_export_tags_one_template_not_in_templates_filer_should_not_create_that_template_file(
-        self):  # noqa: E125
+            self):
 
         tag_template_id = 'my_template'
         tag_template_id_2 = 'my_template_2'
@@ -340,7 +340,7 @@ class TagDatasourceExporterTest(unittest.TestCase):
         self.assertEqual(1, first_row[constant.TAGS_DS_SUMMARY_COLUMNS_ORDER[8]])
 
     def test_export_tags_no_templates_in_templates_filer_should_not_create_template_and_summary_files(  # noqa: E501
-        self):  # noqa: E125
+            self):
 
         tag_template_id = 'my_template'
         tag_template_id_2 = 'my_template_2'
